@@ -724,22 +724,6 @@ Token 24 soat amal qiladi. Muddati o'tsa — qayta login qilish kerak.
 
 ---
 
-## ⚙️ Muhit o'zgaruvchilari (`.env`)
-
-```env
-DB_HOST=
-DB_PORT=
-DB_USER=
-DB_PASS=
-DB_NAME=
-
-SECRET_KEY=bu-yerga-kamida-32-belgi-yozing
-ALGORITHM=
-ACCESS_TOKEN_EXPIRE_MINUTES=
-```
-
----
-
 ## 🗃️ Migratsiya (Alembic)
 
 > 💡 Model o'zgarganda Alembic bazani avtomatik yangilaydi. Git kabi — tarix saqlanadi.
