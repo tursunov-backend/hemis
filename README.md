@@ -3,8 +3,6 @@
 Bu loyiha O'zbekiston universitetlarining **HEMIS Student tizimi** uchun yozilgan backend API.  
 Talabalar o'z profili, baholar, davomat, jadval va moliyaviy ma'lumotlarini ko'ra oladi.
 
-> 💡 **Backend nima?** — Bu foydalanuvchi ko'rmaydigan "orqa" qism. Frontend (telefon yoki veb-sayt) shu backend bilan gaplashadi va ma'lumot oladi.
-
 ---
 
 ## 🛠️ Qanday texnologiyalar ishlatilgan?
