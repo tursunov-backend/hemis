@@ -1,54 +1,28 @@
 # 🎓 HEMIS Backend API
 
-O'zbekiston universitetlarining **HEMIS Student tizimi** uchun to'liq RESTful backend API.  
-`student.samtuit.uz` platformasiga mos keluvchi server tomoni.
+O'zbekiston universitetlarining **HEMIS Student tizimi** uchun backend API.  
+Talabalar o'z profili, baholar, davomat, jadval va moliyaviy ma'lumotlarini ko'ra oladi.
 
-> 💡 **Backend nima?** — Foydalanuvchi ko'rmaydigan "orqa" qism. Telefon yoki veb-sayt shu backend bilan gaplashib ma'lumot oladi.
-
----
-
-## 📋 Mundarija
-
-- [Texnologiyalar](#-texnologiyalar)
-- [Loyiha strukturasi](#-loyiha-strukturasi)
-- [O'rnatish](#-ornatish)
-- [Ishga tushirish](#-ishga-tushirish)
-- [Rollar va ruxsatlar](#-rollar-va-ruxsatlar-rbac)
-- [API Endpointlar](#-api-endpointlar)
-- [Xavfsizlik](#-xavfsizlik)
-- [Muhit o'zgaruvchilari](#-muhit-ozgaruvchilari)
-- [Docker](#-docker)
-- [Testlar](#-testlar)
-- [Migratsiya](#-migratsiya)
-- [Tez-tez uchraydigan xatolar](#-tez-tez-uchraydigan-xatolar)
-
----
 
 ## 🛠️ Texnologiyalar
 
 | Texnologiya | Bu nima? |
 |---|---|
 | **Python 3.11+** | Dasturlash tili |
-| **FastAPI** | Web framework — API yaratish uchun |
+| **FastAPI** | API yaratish uchun framework |
 | **PostgreSQL** | Ma'lumotlar bazasi |
 | **SQLAlchemy 2.0** | Python orqali bazaga murojaat (SQL yozmasdan) |
-| **Alembic** | Baza o'zgarishlarini boshqarish (migratsiya) |
-| **Pydantic v2** | Kelayotgan ma'lumotlarni tekshirish |
-| **JWT (python-jose)** | Foydalanuvchi kimligini tekshirish |
-| **bcrypt (passlib)** | Parolni xavfsiz saqlash |
-| **Redis** | Tezkor kesh va rate limiting |
-| **Celery** | Orqa fon vazifalari (email, notification) |
-| **slowapi** | Brute-force hujumlardan himoya |
-| **structlog** | Professional log tizimi |
-| **Docker** | Loyihani istalgan joyda ishlatish |
-| **pytest** | Avtomatik testlar |
-| **Uvicorn** | Serverni ishga tushiruvchi dastur |
+| **Alembic** | Baza o'zgarishlarini boshqarish |
+| **Pydantic v2** | Kelgan ma'lumotlarni tekshirish |
+| **JWT** | Token orqali foydalanuvchini tanish |
+| **bcrypt** | Parolni xavfsiz saqlash |
+| **Uvicorn** | Serverni ishga tushirish |
 
 ---
 
 ## 📁 Loyiha strukturasi
 
-> 💡 Har bir papka va fayl nima uchun ekanini tushuntirdik. Avval bularni o'qing!
+> 💡 Har bir papka va fayl nima uchun ekanini tushuntirdik.
 
 ```
 hemis_backend/
@@ -58,55 +32,35 @@ hemis_backend/
 ├── .env                         ← Maxfiy sozlamalar — GitHubga chiqarma! ⚠️
 ├── .env.example                 ← .env uchun namuna (GitHubga qo'ysa bo'ladi)
 ├── alembic.ini                  ← Alembic sozlamasi
-├── Dockerfile                   ← Docker image yaratish uchun
-├── docker-compose.yml           ← Barcha servislarni birga ishga tushirish
-├── .github/
-│   └── workflows/
-│       └── ci.yml               ← GitHub Actions: test + deploy
-├── README.md
+├── README.md                    ← Siz o'qiyotgan fayl 😄
 │
 ├── alembic/                     ← Baza o'zgarishlari tarixi
-│   └── versions/
-│
-├── tests/                       ← Avtomatik testlar
-│   ├── conftest.py              ← Test sozlamalari va umumiy fixtures
-│   ├── test_auth.py             ← Login, logout, token testlari
-│   ├── test_student.py          ← Profil testlari
-│   ├── test_grades.py           ← Baho testlari
-│   ├── test_attendance.py       ← Davomat testlari
-│   ├── test_financial.py        ← Moliya testlari
-│   ├── test_messages.py         ← Xabar testlari
-│   ├── test_security.py         ← Xavfsizlik testlari (rate limit, auth)
-│   └── test_permissions.py      ← Rol va ruxsat testlari
+│   └── versions/                ← Har bir o'zgarish alohida fayl
 │
 └── app/
     ├── __init__.py
     │
-    ├── core/                    ← Ilova "yuragi" — eng asosiy sozlamalar
-    │   ├── config.py            ← .env fayldan sozlamalarni o'qiydi
-    │   ├── security.py          ← JWT token yaratish va tekshirish, bcrypt
-    │   ├── dependencies.py      ← get_current_user, require_role va boshqalar
-    │   ├── permissions.py       ← Kim nimaga ruxsati bor? (RBAC)
-    │   ├── rate_limiter.py      ← Brute-force himoyasi (slowapi + Redis)
-    │   ├── logging.py           ← structlog sozlamasi
-    │   └── exceptions.py        ← Global exception handler (markazlashgan)
+    ├── core/                    ← Eng asosiy sozlamalar
+    │   ├── config.py            ← .env dan sozlamalarni o'qiydi
+    │   ├── security.py          ← JWT token va bcrypt
+    │   └── dependencies.py      ← "Hozir kim login qilgan?" shu yerda
     │
     ├── db/                      ← Database bilan bog'liq hamma narsa
-    │   ├── base.py              ← Barcha modellar meros oladigan asosiy class
-    │   ├── session.py           ← Bazaga ulanish va get_db() funksiyasi
-    │   ├── redis.py             ← Redis ulanishi (cache + rate limit)
-    │   └── init_db.py           ← Boshlang'ich ma'lumotlar (seed data)
+    │   ├── base.py              ← Barcha modellar meros oladigan class
+    │   ├── session.py           ← Bazaga ulanish, get_db() funksiyasi
+    │   └── init_db.py           ← Boshlang'ich test ma'lumotlar
     │
-    ├── models/                  ← Baza jadvallari (har bir fayl = bir jadval)
+    ├── models/                  ← Baza jadvallari
     │   │
-    │   │  💡 Barcha modellarda quyidagilar bor:
-    │   │     created_at  — qachon yaratilgan
-    │   │     updated_at  — qachon o'zgartirilgan
-    │   │     is_deleted  — o'chirilganmi? (soft delete)
+    │   │  💡 Har bir fayl = bitta jadval
+    │   │     Barcha modellarda bor:
+    │   │       created_at — qachon yaratilgan
+    │   │       updated_at — qachon o'zgartirilgan
+    │   │       is_deleted — o'chirilganmi? (haqiqatda o'chmaydi)
     │   │
     │   ├── __init__.py
-    │   ├── user.py              ← Tizim foydalanuvchisi (student/teacher/admin)
-    │   ├── role.py              ← Rollar: student, teacher, admin, superadmin
+    │   ├── user.py              ← Tizim foydalanuvchisi
+    │   ├── role.py              ← Rollar: student, teacher, admin
     │   ├── faculty.py           ← Fakultetlar
     │   ├── department.py        ← Kafedralar
     │   ├── group.py             ← Guruhlar
@@ -120,53 +74,53 @@ hemis_backend/
     │   ├── financial.py         ← Kontrakt va stipendiya
     │   ├── message.py           ← Xabarlar
     │   ├── announcement.py      ← E'lonlar
-    │   ├── audit_log.py         ← Kim nima o'zgartirdi? (audit)
+    │   ├── audit_log.py         ← Kim nima o'zgartirdi?
     │   ├── login_history.py     ← Kirish tarixi
     │   └── certificate.py       ← Sertifikatlar
     │
-    ├── schemas/                 ← API ma'lumot formatlari (Pydantic v2)
+    ├── schemas/                 ← API ma'lumot formatlari
     │   │
-    │   │  ⚠️ model ≠ schema!
-    │   │     model  = bazadagi jadval
+    │   │  ⚠️ model ≠ schema farqi:
+    │   │     model  = bazadagi jadval ko'rinishi
     │   │     schema = API orqali keladigan/ketadigan ma'lumot
     │   │
     │   ├── __init__.py
-    │   ├── common.py            ← PaginatedResponse, ErrorResponse (umumiy)
-    │   ├── auth.py              ← LoginRequest, TokenResponse
-    │   ├── user.py              ← UserOut, RoleOut
-    │   ├── student.py           ← StudentProfile, StudentUpdate
-    │   ├── curriculum.py        ← ScheduleItem, SubjectOut
-    │   ├── attendance.py        ← AttendanceOut, AttendanceSummary
-    │   ├── grade.py             ← GradeOut, GPASummary
-    │   ├── exam.py              ← ExamOut, ExamResultOut
-    │   ├── financial.py         ← ContractOut, ScholarshipOut
-    │   ├── message.py           ← MessageOut, MessageCreate
-    │   └── announcement.py      ← AnnouncementOut
+    │   ├── common.py            ← Umumiy formatlar (pagination, xato)
+    │   ├── auth.py              ← Login so'rovi va javob
+    │   ├── student.py           ← Profil formati
+    │   ├── curriculum.py        ← Jadval va fanlar
+    │   ├── attendance.py        ← Davomat
+    │   ├── grade.py             ← Baholar
+    │   ├── exam.py              ← Imtihonlar
+    │   ├── financial.py         ← Kontrakt, stipendiya
+    │   ├── message.py           ← Xabarlar
+    │   └── announcement.py      ← E'lonlar
     │
     ├── crud/                    ← Baza bilan ishlash logikasi
     │   │
-    │   │  💡 Nima uchun alohida papka?
-    │   │     Router  → faqat HTTP so'rovlarni qabul qiladi
+    │   │  💡 Nima uchun alohida?
+    │   │     Router  → HTTP so'rovlarni qabul qiladi
     │   │     CRUD    → faqat baza bilan ishlaydi
-    │   │     Bu "Separation of Concerns" deyiladi — har narsa o'z joyida
+    │   │     Shunday bo'lsa kod toza va tushunarli bo'ladi
     │   │
     │   ├── __init__.py
-    │   ├── base.py              ← Umumiy CRUD operatsiyalar (get, create, update)
     │   ├── auth.py              ← Login, logout, parol o'zgartirish
     │   ├── student.py           ← Profil olish, yangilash
-    │   ├── attendance.py        ← Davomat ma'lumotlari
-    │   ├── grade.py             ← Baho va GPA
-    │   ├── exam.py              ← Imtihon
-    │   ├── financial.py         ← Kontrakt va stipendiya
-    │   └── message.py           ← Xabar yuborish/olish
+    │   ├── attendance.py        ← Davomat
+    │   ├── grade.py             ← Baholar, GPA
+    │   ├── exam.py              ← Imtihonlar
+    │   ├── financial.py         ← Kontrakt, stipendiya
+    │   └── message.py           ← Xabarlar
     │
-    ├── api/                     ← HTTP so'rovlarni qabul qiluvchi qatlam
-    │   ├── __init__.py
-    │   └── v1/                  ← API versiya 1 (/api/v1/...)
-    │       ├── __init__.py
+    ├── api/                     ← HTTP endpointlar
+    │   └── v1/                  ← Versiya 1
+    │       │
+    │       │  💡 Nima uchun v1?
+    │       │     Kelajakda tizim o'zgarse /v2 qo'shiladi
+    │       │     Eski /v1 ishlab turadi — hech narsa buzilamaydi
+    │       │
     │       ├── router.py        ← Barcha routerlarni birlashtiradi
     │       └── routes/
-    │           ├── __init__.py
     │           ├── auth.py      ← /api/v1/auth/...
     │           ├── student.py   ← /api/v1/student/...
     │           ├── curriculum.py← /api/v1/curriculum/...
@@ -177,55 +131,49 @@ hemis_backend/
     │           ├── messages.py  ← /api/v1/messages/...
     │           └── announcements.py
     │
-    ├── tasks/                   ← Orqa fon vazifalari (Celery)
-    │   ├── __init__.py
-    │   ├── celery_app.py        ← Celery sozlamasi
-    │   ├── email_tasks.py       ← Email yuborish (async)
-    │   └── notification_tasks.py← Push notification
-    │
     └── utils/                   ← Yordamchi funksiyalar
-        ├── __init__.py
-        ├── enums.py             ← Barcha Enum'lar (status, tur, shakl...)
-        ├── pagination.py        ← limit/offset pagination
-        ├── grade_utils.py       ← 87 ball → "A-" va 3.7 GPA
-        ├── validators.py        ← Parol kuchi, telefon, email tekshiruvi
-        └── cache.py             ← Redis cache yordamchi funksiyalar
+        ├── enums.py             ← Barcha ro'yxatlar (status, tur...)
+        ├── pagination.py        ← Sahifalash (20 tadan bo'lib yuborish)
+        ├── grade_utils.py       ← 87 ball → "A-", 3.7 GPA hisoblash
+        └── validators.py        ← Parol kuchi, telefon, email tekshiruvi
 ```
 
 ---
 
-## 💻 O'rnatish
+## 💻 O'rnatish (qadam-baqadam)
 
-### 1. Repozitoriyani yuklab oling
+### 1-qadam: Yuklab oling
 
 ```bash
 git clone https://github.com/username/hemis-backend.git
 cd hemis-backend
 ```
 
-### 2. Virtual muhit yarating
+### 2-qadam: Virtual muhit yarating
 
-> 💡 Har bir loyiha uchun alohida "xona" — kutubxonalar aralashmaydi.
+> 💡 **Virtual muhit nima?** — Har bir loyiha uchun alohida "xona". Kutubxonalar bir-biriga aralashmaydi.
 
 ```bash
 python -m venv venv
 
-# Linux / Mac
+# Linux / Mac:
 source venv/bin/activate
 
-# Windows
+# Windows:
 venv\Scripts\activate
 
-# (venv) belgisi chiqsa — muvaffaqiyatli
+# Muvaffaqiyatli bo'lsa terminalda (venv) chiqadi
 ```
 
-### 3. Kutubxonalarni o'rnating
+### 3-qadam: Kutubxonalarni o'rnating
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. PostgreSQL bazasini yarating
+### 4-qadam: PostgreSQL bazasini yarating
+
+> 💡 PostgreSQL o'rnatilmagan bo'lsa: https://www.postgresql.org/download/
 
 ```bash
 psql -U postgres
@@ -236,61 +184,24 @@ GRANT ALL PRIVILEGES ON DATABASE hemis_db TO hemis_user;
 \q
 ```
 
-### 5. Redis o'rnating
-
-> 💡 Redis — tezkor xotira. Rate limiting va cache uchun kerak.
-
-```bash
-# Ubuntu / Debian
-sudo apt install redis-server
-sudo systemctl start redis
-
-# Mac
-brew install redis
-brew services start redis
-
-# Ishlayaptimi?
-redis-cli ping   # → PONG
-```
-
-### 6. .env faylini sozlang
+### 5-qadam: .env faylini sozlang
 
 ```bash
 cp .env.example .env
+# Keyin .env faylini oching va to'ldiring
 ```
 
 `.env` ichida:
 
 ```env
-# Database
 DATABASE_URL=postgresql://hemis_user:parol123@localhost:5432/hemis_db
 
-# JWT
-SECRET_KEY=bu-yerga-kamida-32-ta-belgi-yozing
+SECRET_KEY=bu-yerga-kamida-32-belgi-yozing-hech-kimga-bermang
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# Rate limiting
-LOGIN_RATE_LIMIT=5/minute
-
-# Celery
-CELERY_BROKER_URL=redis://localhost:6379/1
-
-# Email (ixtiyoriy)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=sizning@email.com
-SMTP_PASSWORD=emailparol
-
-# Muhit (development yoki production)
-APP_ENV=development
-DEBUG=True
 ```
 
-> 🔑 Xavfsiz kalit yaratish:
+> 🔑 Xavfsiz kalit yasash:
 > ```bash
 > openssl rand -hex 32
 > ```
@@ -299,78 +210,54 @@ DEBUG=True
 
 ## ▶️ Ishga tushirish
 
-### Oddiy usul
-
 ```bash
-# Jadvallarni bazada yaratish (birinchi marta)
+# 1. Jadvallarni bazada yaratish (faqat birinchi marta)
 alembic upgrade head
 
-# Serverni ishga tushirish
+# 2. Serverni ishga tushirish
 uvicorn main:app --reload
 
-# Swagger UI:
-# http://localhost:8000/docs
+# Server ishlaydi:
+# http://localhost:8000
 ```
 
-### Docker bilan (tavsiya etiladi)
+### Swagger UI — API ni brauzerda sinab ko'ring
 
-```bash
-# Barcha servislarni birga ishga tushirish
-# (PostgreSQL + Redis + API + Celery)
-docker-compose up --build
-
-# Orqa fonda ishlatish
-docker-compose up -d
-
-# To'xtatish
-docker-compose down
 ```
+http://localhost:8000/docs
+```
+
+> 💡 Bu sahifada barcha endpointlarni ko'rib, to'g'ridan-to'g'ri sinab ko'rsa bo'ladi. Postman kerak emas!
 
 ---
 
-## 👥 Rollar va ruxsatlar (RBAC)
+## 👥 Rollar tizimi
 
-> 💡 **RBAC nima?** — Role-Based Access Control. Kim nimaga kira olishini rol orqali boshqarish.
-
-### Rollar
+> 💡 Har bir foydalanuvchi ma'lum bir "rol" ga ega. Rol uning nimalarga kira olishini belgilaydi.
 
 | Rol | Kimlar? | Nimalarga kirishi mumkin? |
 |-----|---------|--------------------------|
-| `student` | Talabalar | Faqat o'z ma'lumotlari |
-| `teacher` | O'qituvchilar | O'z guruhi, davomat belgilash |
-| `admin` | Dekanat xodimlari | Barcha talabalar, hisobotlar |
+| `student` | Talabalar | Faqat **o'z** ma'lumotlari |
+| `teacher` | O'qituvchilar | O'z fani va guruhi |
+| `admin` | Dekanat | Barcha talabalar ma'lumotlari |
 | `superadmin` | Tizim boshqaruvchisi | Hamma narsa |
-
-### Ruxsatlar qanday ishlaydi?
-
-```
-Talaba /api/v1/grades/ ga so'rov yuboradi
-              ↓
-JWT token tekshiriladi (kim bu?)
-              ↓
-Rol tekshiriladi (student/teacher/admin?)
-              ↓
-ID tekshiriladi (o'z ma'lumotimi?)
-              ↓
-Ma'lumot qaytariladi yoki 403 xato
-```
 
 ### Muhim qoidalar
 
-- Talaba **faqat o'z** ma'lumotlarini ko'ra oladi
-- Boshqa talabaning profili, bahosi, xabarlari — **403 Forbidden**
-- Teacher faqat **o'z fanidagi** talabalarni ko'radi
-- Admin hamma narsani ko'radi, lekin o'zgartira olmaydi
-- Superadmin to'liq nazorat
+```
+✅ Talaba o'z profilini ko'ra oladi
+✅ Talaba o'z baholarini ko'ra oladi
+
+❌ Talaba boshqa talabaning profilini ko'ra olmaydi  → 403 Forbidden
+❌ Talaba baholarni o'zgartira olmaydi               → 403 Forbidden
+❌ Teacher boshqa guruh ma'lumotlarini ko'ra olmaydi → 403 Forbidden
+```
 
 ---
 
 ## 🌐 API Endpointlar
 
-> 🔒 — JWT token talab qilinadi
-> 👑 — faqat admin/superadmin
-
-Barcha endpointlar `/api/v1/` bilan boshlanadi.
+> 🔒 — bu belgili endpointlar uchun token kerak (avval `/login` dan oling)
 
 Token headerga shunday qo'shiladi:
 ```
@@ -379,9 +266,9 @@ Authorization: Bearer <tokeningiz>
 
 ---
 
-### 🔐 Autentifikatsiya `/api/v1/auth`
+### 🔐 Kirish — `/api/v1/auth`
 
-#### `POST /api/v1/auth/login` — Kirish
+#### `POST /api/v1/auth/login` — Tizimga kirish
 
 So'rov:
 ```json
@@ -403,45 +290,43 @@ Javob:
 }
 ```
 
-> ⚠️ **Rate limit:** 1 daqiqada 5 ta urinish. Ortiq bo'lsa `429 Too Many Requests`.
+> Bu `access_token` ni saqlab qoling — keyingi barcha so'rovlarda kerak!
 
-#### `POST /api/v1/auth/logout` 🔒
+#### `POST /api/v1/auth/logout` 🔒 — Chiqish
 
-#### `POST /api/v1/auth/change-password` 🔒
+#### `POST /api/v1/auth/change-password` 🔒 — Parol o'zgartirish
 
 ```json
 {
   "old_password": "eskiparol",
-  "new_password": "Yangi@Parol123"
+  "new_password": "YangiParol123"
 }
 ```
 
-> Parol kuchi tekshiriladi: kamida 8 belgi, 1 ta katta harf, 1 ta raqam.
+> Parol kuchi tekshiriladi: kamida 8 belgi, 1 katta harf, 1 raqam
 
 ---
 
-### 👤 Talaba profili `/api/v1/student`
+### 👤 Talaba profili — `/api/v1/student`
 
-| So'rov | URL | 🔒 | Tavsif |
-|--------|-----|----|--------|
-| `GET` | `/profile` | ✅ | O'z profilini ko'rish |
-| `PUT` | `/profile` | ✅ | Telefon/email/manzil o'zgartirish |
-| `GET` | `/gpa` | ✅ | GPA ball (keshlanadi) |
-| `GET` | `/login-history` | ✅ | Oxirgi 20 ta kirish |
-| `GET` | `/certificates` | ✅ | Sertifikatlar |
-
-> 🔒 Boshqa talabaning profiliga kirmoqchi bo'lsangiz → `403 Forbidden`
+| So'rov | URL | Tavsif |
+|--------|-----|--------|
+| `GET` | `/api/v1/student/profile` | 🔒 O'z profilini ko'rish |
+| `PUT` | `/api/v1/student/profile` | 🔒 Telefon/email/manzil o'zgartirish |
+| `GET` | `/api/v1/student/gpa` | 🔒 GPA ballini ko'rish |
+| `GET` | `/api/v1/student/login-history` | 🔒 Oxirgi 20 ta kirish |
+| `GET` | `/api/v1/student/certificates` | 🔒 Sertifikatlar |
 
 ---
 
-### 📚 Dars jadvali `/api/v1/curriculum`
+### 📚 Dars jadvali — `/api/v1/curriculum`
 
 ```
 GET /api/v1/curriculum/schedule?semester=6&day=1   🔒
 GET /api/v1/curriculum/subjects                    🔒
 ```
 
-Jadval javobi (keshlanadi — Redis da 10 daqiqa saqlanadi):
+Javob:
 ```json
 [
   {
@@ -459,14 +344,14 @@ Jadval javobi (keshlanadi — Redis da 10 daqiqa saqlanadi):
 
 ---
 
-### 📅 Davomat `/api/v1/attendance`
+### 📅 Davomat — `/api/v1/attendance`
 
 ```
-GET /api/v1/attendance/?page=1&limit=20   🔒   ← Sahifalash bilan
+GET /api/v1/attendance/?page=1&limit=20   🔒
 GET /api/v1/attendance/summary            🔒
 ```
 
-> 💡 **Sahifalash nima?** — 500 ta yozuv birdaniga emas, 20 tadan bo'lib yuboriladi. Sayt sekinlashmaydi.
+> 💡 **`page` va `limit` nima?** — 500 ta yozuv birdaniga emas, 20 tadan bo'lib yuboriladi. Sayt sekinlashmaydi.
 
 Summary javobi:
 ```json
@@ -485,14 +370,14 @@ Summary javobi:
 
 ---
 
-### 📊 Baholar `/api/v1/grades`
+### 📊 Baholar — `/api/v1/grades`
 
 ```
 GET /api/v1/grades/?semester=6   🔒
 GET /api/v1/grades/gpa-summary   🔒
 ```
 
-Baho javobi:
+Javob:
 ```json
 {
   "subject": "Dasturlash asoslari",
@@ -522,7 +407,7 @@ Baho javobi:
 
 ---
 
-### 📝 Imtihonlar `/api/v1/exams`
+### 📝 Imtihonlar — `/api/v1/exams`
 
 ```
 GET /api/v1/exams/?semester=6   🔒
@@ -530,25 +415,25 @@ GET /api/v1/exams/?semester=6   🔒
 
 ---
 
-### 💰 Moliya `/api/v1/financial`
+### 💰 Moliya — `/api/v1/financial`
 
 ```
-GET /api/v1/financial/contracts      🔒
-GET /api/v1/financial/scholarships   🔒   ← faqat grant talabalar
-GET /api/v1/financial/summary        🔒
+GET /api/v1/financial/contracts      🔒   ← Kontrakt summasi va qoldig'i
+GET /api/v1/financial/scholarships   🔒   ← Faqat grant talabalarga
+GET /api/v1/financial/summary        🔒   ← Umumiy to'lov holati
 ```
 
 ---
 
-### ✉️ Xabarlar `/api/v1/messages`
+### ✉️ Xabarlar — `/api/v1/messages`
 
 ```
-GET   /api/v1/messages/?page=1&limit=20   🔒
-POST  /api/v1/messages/                   🔒
-PATCH /api/v1/messages/{id}/read          🔒
+GET   /api/v1/messages/?page=1&limit=20   🔒   ← Barcha xabarlar
+POST  /api/v1/messages/                   🔒   ← Xabar yuborish
+PATCH /api/v1/messages/{id}/read          🔒   ← O'qilgan deb belgilash
 ```
 
-So'rov:
+Xabar yuborish:
 ```json
 {
   "receiver_student_id": "20210002",
@@ -562,269 +447,123 @@ So'rov:
 
 ---
 
-### 📢 E'lonlar `/api/v1/announcements`
+### 📢 E'lonlar — `/api/v1/announcements`
 
 ```
-GET /api/v1/announcements/   🔒
+GET /api/v1/announcements/   🔒   ← Muddati o'tmagan faol e'lonlar
 ```
+
+---
+
+## 🔑 JWT Token qanday ishlaydi?
+
+```
+1. Talaba  →  student_id + parol yuboradi
+                    ↓
+2. Server  →  parolni tekshiradi
+                    ↓
+3. To'g'ri →  JWT token yaratib qaytaradi
+                    ↓
+4. Talaba  →  har so'rovda tokenni yuboradi
+                    ↓
+5. Server  →  tokenni tekshiradi, kimligini biladi
+```
+
+Token 24 soat amal qiladi. Muddati o'tsa — qayta login qilish kerak.
 
 ---
 
 ## 🛡️ Xavfsizlik
 
-### 1. Rate Limiting (brute-force himoyasi)
+### Parol xavfsizligi
+- Parollar bcrypt bilan xeshlanadi — bazada oddiy matn saqlanmaydi
+- Kimdir bazani o'g'irlasa ham parollarni bila olmaydi
 
+### Ma'lumot himoyasi
+- Har bir so'rovda "bu o'z ma'lumotimi?" tekshiriladi
+- Boshqa talabaning ma'lumotiga urinish → `403 Forbidden`
+
+### Soft delete
+- Ma'lumot o'chirilganda bazadan butunlay ketmaydi
+- `is_deleted = True` bo'ladi — kerak bo'lsa qaytarib olsa bo'ladi
+
+### Audit log
+- Kim nima o'zgartirdi — hammasi yozib boriladi
 ```
-/login endpointi:  1 daqiqada maksimal 5 urinish
-                   Ortiq bo'lsa → 429 Too Many Requests
-                   10 daqiqa bloklanadi
-```
-
-### 2. JWT Token
-
-```
-Token muddati: 24 soat
-Algorithm:     HS256
-Payload:       {"sub": "user_id", "role": "student", "exp": ...}
-```
-
-### 3. Parol xavfsizligi
-
-- bcrypt bilan xeshlanadi (oddiy matn saqlanmaydi)
-- Parol kuchi: kamida 8 belgi, 1 katta harf, 1 raqam
-- Eski parol tekshirilmasdan o'zgartirib bo'lmaydi
-
-### 4. Ma'lumot himoyasi
-
-- Har bir so'rovda `current_user.id == requested_id` tekshiriladi
-- Boshqa foydalanuvchi ma'lumotiga kirish → `403 Forbidden`
-- Soft delete: ma'lumot o'chirilmaydi, `is_deleted=True` bo'ladi
-
-### 5. Audit Log
-
-Kim nima o'zgartirdi — hammasi yozib boriladi:
-```json
-{
-  "user_id": "20210001",
-  "action": "grade_updated",
-  "old_value": {"total": 85},
-  "new_value": {"total": 89},
-  "timestamp": "2024-03-15T10:30:00",
-  "ip_address": "192.168.1.1"
-}
+[2024-03-15 10:30] student:20210001 → o'z profilini yangiladi
+[2024-03-15 11:00] admin:001        → 20210002 bahosini o'zgartirdi
 ```
 
 ---
 
-## ⚙️ Muhit o'zgaruvchilari
+## ⚙️ Muhit o'zgaruvchilari (`.env`)
 
 ```env
-# ═══════════════════════════
-# DATABASE
-# ═══════════════════════════
-DATABASE_URL=postgresql://hemis_user:parol@localhost:5432/hemis_db
+# Database ulanish manzili
+DATABASE_URL=postgresql://hemis_user:parol123@localhost:5432/hemis_db
 
-# ═══════════════════════════
-# JWT
-# ═══════════════════════════
-SECRET_KEY=kamida-32-belgi-bu-yerda          # openssl rand -hex 32
+# JWT maxfiy kalit (kamida 32 belgi, hech kimga bermang!)
+SECRET_KEY=bu-yerga-uzun-matn-yozing
+
+# Token algoritmi — o'zgartirmang
 ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=1440             # 24 soat
 
-# ═══════════════════════════
-# REDIS
-# ═══════════════════════════
-REDIS_URL=redis://localhost:6379/0
-CACHE_EXPIRE_SECONDS=600                     # 10 daqiqa
+# Token necha daqiqa amal qiladi (1440 = 24 soat)
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
 
-# ═══════════════════════════
-# RATE LIMITING
-# ═══════════════════════════
-LOGIN_RATE_LIMIT=5/minute
-API_RATE_LIMIT=100/minute
-
-# ═══════════════════════════
-# CELERY (orqa fon vazifalari)
-# ═══════════════════════════
-CELERY_BROKER_URL=redis://localhost:6379/1
-CELERY_RESULT_BACKEND=redis://localhost:6379/2
-
-# ═══════════════════════════
-# EMAIL
-# ═══════════════════════════
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=sizning@email.com
-SMTP_PASSWORD=emailparol
-
-# ═══════════════════════════
-# ILOVA
-# ═══════════════════════════
-APP_ENV=development          # development | production
-DEBUG=True                   # Productionda False bo'lsin!
-ALLOWED_ORIGINS=*            # Productionda aniq domain yozing
+# development yoki production
+APP_ENV=development
 ```
 
 ---
 
-## 🐳 Docker
+## 🗃️ Migratsiya (Alembic)
 
-> 💡 **Docker nima?** — Loyihani "qutiga" solib, istalgan kompyuterda bir xil ishlatish. "Menda ishlaydi, senda ishlamaydi" muammosi yo'qoladi.
-
-```bash
-# Qurishni va ishga tushirishni birga bajarish
-docker-compose up --build
-
-# Orqa fonda ishlatish
-docker-compose up -d
-
-# Loglarni ko'rish
-docker-compose logs -f api
-
-# To'xtatish
-docker-compose down
-
-# Bazani ham o'chirish bilan to'xtatish
-docker-compose down -v
-```
-
-`docker-compose.yml` ichida quyidagilar ishga tushadi:
-- `api` — FastAPI server (port 8000)
-- `db` — PostgreSQL (port 5432)
-- `redis` — Redis (port 6379)
-- `celery` — Orqa fon vazifalari
-- `celery-beat` — Rejalashtirilgan vazifalar (har kuni, har soat...)
-
----
-
-## 🧪 Testlar
-
-> 💡 **Test nima uchun?** — Kodingiz to'g'ri ishlayaptimi? Har safar qo'lda tekshirmasdan, kod o'zi tekshirsin.
+> 💡 Model o'zgarganda (yangi ustun, yangi jadval) Alembic bazani avtomatik yangilaydi.
 
 ```bash
-# Barcha testlar
-pytest
+# Barcha jadvallarni yaratish (birinchi marta)
+alembic upgrade head
 
-# Batafsil chiqish
-pytest -v
-
-# Bitta fayl
-pytest tests/test_auth.py
-
-# Bitta test funksiya
-pytest tests/test_auth.py::test_login_success
-
-# Test qamrovi (coverage) — qancha kod test qilingan?
-pytest --cov=app tests/ --cov-report=html
-
-# Hisobot: htmlcov/index.html da ochiladi
-```
-
-### Test turlari
-
-| Fayl | Nima tekshiriladi? |
-|------|-------------------|
-| `test_auth.py` | Login, logout, noto'g'ri parol, token muddati |
-| `test_student.py` | Profil ko'rish, yangilash, boshqa profil bloklash |
-| `test_grades.py` | Baholar, GPA hisob, letter grade |
-| `test_attendance.py` | Davomat, foiz hisob, sahifalash |
-| `test_financial.py` | Kontrakt, stipendiya, grant talabalar |
-| `test_messages.py` | Yuborish, o'qish, o'ziga yubora olmaslik |
-| `test_security.py` | Rate limit, brute-force, token tekshirish |
-| `test_permissions.py` | Rol tekshirish, boshqa data bloklash |
-
----
-
-## 🗃️ Migratsiya
-
-> 💡 **Alembic nima?** — Baza jadvallari o'zgarganda, o'zgarishlarni faylda saqlaydi va avtomatik qo'llaydi. Git kabi — tarix saqlanadi.
-
-```bash
-# Model o'zgarganda yangi migratsiya yaratish
-alembic revision --autogenerate -m "student ga email qoshildi"
+# Model o'zgarganda yangi migratsiya fayli yaratish
+alembic revision --autogenerate -m "nima o'zgardi"
 
 # O'zgarishlarni bazaga qo'llash
 alembic upgrade head
 
-# Bir qadam orqaga (xato bo'lsa)
+# Xato bo'lsa — bir qadam orqaga
 alembic downgrade -1
-
-# Tarixni ko'rish
-alembic history
 ```
 
 ---
 
 ## 🐞 Tez-tez uchraydigan xatolar
 
-**`ModuleNotFoundError`** — kutubxona yo'q:
+**`ModuleNotFoundError`** — kutubxona o'rnatilmagan:
 ```bash
 pip install -r requirements.txt
 ```
 
 **`could not connect to server`** — PostgreSQL ishlamayapti:
 ```bash
-sudo systemctl start postgresql    # Linux
-brew services start postgresql     # Mac
-```
+# Linux
+sudo systemctl start postgresql
 
-**`Connection refused` (Redis)** — Redis ishlamayapti:
-```bash
-sudo systemctl start redis         # Linux
-brew services start redis          # Mac
-redis-cli ping                     # → PONG bo'lishi kerak
+# Mac
+brew services start postgresql
 ```
 
 **`alembic: command not found`** — virtual muhit yoqilmagan:
 ```bash
-source venv/bin/activate           # Linux/Mac
-venv\Scripts\activate              # Windows
+source venv/bin/activate   # Linux/Mac
+venv\Scripts\activate      # Windows
 ```
 
 **`401 Unauthorized`** — token yo'q yoki muddati o'tgan. Qayta login qiling.
 
-**`403 Forbidden`** — ruxsatingiz yo'q. Boshqa foydalanuvchi ma'lumotiga kirishga uringan bo'lishingiz mumkin.
+**`403 Forbidden`** — bu ma'lumotga ruxsatingiz yo'q.
 
 **`422 Unprocessable Entity`** — yuborilgan ma'lumot formati noto'g'ri. `/docs` da namunani tekshiring.
-
-**`429 Too Many Requests`** — rate limit ishladi. 1 daqiqa kuting.
-
----
-
-## 📊 Log tizimi
-
-Loyihada 3 xil log yoziladi:
-
-```
-logs/
-├── app.log        ← Umumiy so'rovlar logi
-├── error.log      ← Xatolar logi
-└── security.log   ← Xavfsizlik logi (login urinishlar, bloklash)
-```
-
-Log ko'rish:
-```bash
-# Barcha loglar
-tail -f logs/app.log
-
-# Faqat xatolar
-tail -f logs/error.log
-
-# Xavfsizlik
-tail -f logs/security.log
-```
-
----
-
-## 🔄 CI/CD (GitHub Actions)
-
-Har safar kod `main` branchga push qilinganda avtomatik:
-
-```
-1. Testlar ishga tushadi
-2. Testlar o'tsa → servega deploy qilinadi
-3. Testlar o'tmasa → deploy to'xtatiladi, xabar yuboriladi
-```
 
 ---
 
