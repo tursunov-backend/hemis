@@ -157,20 +157,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4-qadam: PostgreSQL bazasini yarating
-
-> 💡 PostgreSQL o'rnatilmagan bo'lsa: https://www.postgresql.org/download/
-
-```bash
-psql -U postgres
-
-CREATE DATABASE hemis_db;
-CREATE USER hemis_user WITH PASSWORD 'parol123';
-GRANT ALL PRIVILEGES ON DATABASE hemis_db TO hemis_user;
-\q
-```
-
-### 5-qadam: .env faylini sozlang
+### 4-qadam: .env faylini sozlang
 
 ```bash
 cp .env.example .env
