@@ -22,5 +22,3 @@ class Announcement(Base):
         DateTime(timezone=True), nullable=True
     )
 
-    students = relationship("Student", back_populates="announcements")
-    schedules = relationship("Schedule", back_populates="announcements")
