@@ -261,7 +261,7 @@ group
   name            VARCHAR(50)
   department_id   INTEGER    FK → department.id
   course          INTEGER                       (1, 2, 3, 4)
-  education_form  VARCHAR(20)                   (kunduzgi, sirtqi)
+  education_form  VARCHAR(20)                   (kunduzgi, masofaviy)
   education_lang  VARCHAR(20)                   (uzbek, rus)
   created_at      TIMESTAMP
 
@@ -421,7 +421,7 @@ certificate
 
 audit_log
   id         INTEGER    PK
-  user_id    INTEGER    FK → student.id
+  student_id    INTEGER    FK → student.id
   action     VARCHAR(100)                       (profile_updated, grade_viewed, ...)
   old_value  TEXT           (nullable)          (JSON ko'rinishida)
   new_value  TEXT           (nullable)          (JSON ko'rinishida)
