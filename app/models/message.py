@@ -11,19 +11,26 @@ class Message(Base):
     __tablename__ = "messages"
 
     id: Mapped[int] = mapped_column(INTEGER, primary_key=True)
+
     sender_id: Mapped[int] = mapped_column(
         ForeignKey("students.id", ondelete="CASCADE")
     )
+
     receiver_id: Mapped[int] = mapped_column(
         ForeignKey("students.id", ondelete="CASCADE")
     )
+
     subject: Mapped[str] = mapped_column(String(255))
     body: Mapped[str] = mapped_column(Text)
+
     status: Mapped[MessageStatus] = mapped_column(
-        Enum(MessageStatus), default=MessageStatus.sent
+        Enum(MessageStatus, name="message_status"),
+        default=MessageStatus.SENT,
     )
+
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
     )
 
     sender: Mapped["Student"] = relationship(

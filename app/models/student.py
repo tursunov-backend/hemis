@@ -2,7 +2,6 @@ from datetime import datetime, date, timezone
 from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Float, Boolean, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
-
 from app.models.enums import StudentStatus, PaymentType, Semester
 
 
@@ -29,7 +28,9 @@ class Student(Base):
     admission_year: Mapped[int] = mapped_column(Integer)
     gpa: Mapped[float | None] = mapped_column(Float, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    last_login: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    last_login: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -62,7 +63,6 @@ class Student(Base):
     login_history: Mapped[list["LoginHistory"]] = relationship(
         "LoginHistory", back_populates="students", cascade="all, delete-orphan"
     )
-
     messages: Mapped[list["Message"]] = relationship(
         "Message", foreign_keys="Message.sender_id", back_populates="sender"
     )
