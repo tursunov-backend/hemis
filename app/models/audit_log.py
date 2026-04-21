@@ -16,9 +16,7 @@ class AuditLog(Base):
         ForeignKey("students.id", ondelete="CASCADE")
     )
 
-    action: Mapped[AuditAction] = mapped_column(
-        Enum(AuditAction, name="audit_action")
-    )
+    action: Mapped[AuditAction] = mapped_column(Enum(AuditAction, name="audit_action"))
 
     old_value: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     new_value: Mapped[dict | None] = mapped_column(JSON, nullable=True)
@@ -28,6 +26,4 @@ class AuditLog(Base):
         server_default=func.now(),
     )
 
-    student: Mapped["Student"] = relationship(
-        "Student", back_populates="audit_logs"
-    )
+    student: Mapped["Student"] = relationship("Student", back_populates="audit_logs")

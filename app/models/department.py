@@ -9,9 +9,7 @@ from app.db.base import Base
 class Department(Base):
     __tablename__ = "departments"
 
-    __table_args__ = (
-        UniqueConstraint("faculty_id", "name"),
-    )
+    __table_args__ = (UniqueConstraint("faculty_id", "name"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
@@ -27,13 +25,9 @@ class Department(Base):
         server_default=func.now(),
     )
 
-    faculty: Mapped["Faculty"] = relationship(
-        "Faculty", back_populates="departments"
-    )
+    faculty: Mapped["Faculty"] = relationship("Faculty", back_populates="departments")
 
-    groups: Mapped[list["Group"]] = relationship(
-        "Group", back_populates="department"
-    )
+    groups: Mapped[list["Group"]] = relationship("Group", back_populates="department")
 
     teachers: Mapped[list["Teacher"]] = relationship(
         "Teacher", back_populates="department"

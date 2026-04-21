@@ -20,13 +20,9 @@ class Exam(Base):
 
     semester: Mapped[int] = mapped_column(Integer)
 
-    exam_type: Mapped[ExamType] = mapped_column(
-        SAEnum(ExamType, name="exam_type")
-    )
+    exam_type: Mapped[ExamType] = mapped_column(SAEnum(ExamType, name="exam_type"))
 
-    exam_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True)
-    )
+    exam_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     room: Mapped[Optional[str]] = mapped_column(
         String(50),
@@ -40,14 +36,12 @@ class Exam(Base):
         server_default=func.now(),
     )
 
-    subject: Mapped["Subject"] = relationship(
-        "Subject", back_populates="exams"
-    )
+    subject: Mapped["Subject"] = relationship("Subject", back_populates="exams")
 
     results: Mapped[list["ExamResult"]] = relationship(
         "ExamResult", back_populates="exam"
     )
-    
+
 
 class ExamResult(Base):
     __tablename__ = "exam_results"
@@ -74,10 +68,6 @@ class ExamResult(Base):
         server_default=func.now(),
     )
 
-    exam: Mapped["Exam"] = relationship(
-        "Exam", back_populates="results"
-    )
+    exam: Mapped["Exam"] = relationship("Exam", back_populates="results")
 
-    student: Mapped["Student"] = relationship(
-        "Student", back_populates="exam_results"
-    )
+    student: Mapped["Student"] = relationship("Student", back_populates="exam_results")

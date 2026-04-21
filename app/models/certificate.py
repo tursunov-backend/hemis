@@ -7,7 +7,6 @@ from sqlalchemy import String, Date, DateTime, ForeignKey, func
 from app.db.base import Base
 
 
-
 class Certificate(Base):
     __tablename__ = "certificates"
 
@@ -35,6 +34,4 @@ class Certificate(Base):
         server_default=func.now(),
     )
 
-    student: Mapped["Student"] = relationship(
-        "Student", back_populates="certificates"
-    )
+    student: Mapped["Student"] = relationship("Student", back_populates="certificates")

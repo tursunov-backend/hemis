@@ -27,11 +27,11 @@ class Grade(Base):
 
     semester: Mapped[int] = mapped_column(Integer)
 
-    midterm1: Mapped[int] = mapped_column(Integer)    # 0-30
-    midterm2: Mapped[int] = mapped_column(Integer)    # 0-30
-    final_score: Mapped[int] = mapped_column(Integer) # 0-40
+    midterm1: Mapped[int] = mapped_column(Integer)  # 0-30
+    midterm2: Mapped[int] = mapped_column(Integer)  # 0-30
+    final_score: Mapped[int] = mapped_column(Integer)  # 0-40
 
-    total: Mapped[int] = mapped_column(Integer)       # 0-100
+    total: Mapped[int] = mapped_column(Integer)  # 0-100
 
     grade_point: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 

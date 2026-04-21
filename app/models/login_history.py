@@ -26,6 +26,4 @@ class LoginHistory(Base):
 
     is_success: Mapped[bool] = mapped_column(Boolean)
 
-    student: Mapped["Student"] = relationship(
-        "Student", back_populates="login_history"
-    )
+    student: Mapped["Student"] = relationship("Student", back_populates="login_history")
