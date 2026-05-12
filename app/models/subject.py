@@ -29,14 +29,20 @@ class Subject(Base):
         "Department", back_populates="subjects"
     )
 
-    schedules: Mapped[list["Schedule"]] = relationship(
-        "Schedule", back_populates="subjects", cascade="all, delete-orphan"
+    schedules = relationship(
+        "Schedule",
+        back_populates="subject"
     )
 
-    grades: Mapped[list["Grade"]] = relationship(
-        "Grade", back_populates="subjects", cascade="all, delete-orphan"
+    exams = relationship(
+        "Exam",
+        back_populates="subject",
+        cascade="all, delete-orphan"
+    )
+    grades = relationship(
+        "Grade",
+        back_populates="subject",
+        cascade="all, delete-orphan"
     )
 
-    exam_results: Mapped[list["ExamResult"]] = relationship(
-        "ExamResult", back_populates="subjects", cascade="all, delete-orphan"
-    )
+    

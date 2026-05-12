@@ -17,7 +17,7 @@ class Schedule(Base):
     )
 
     teacher_id: Mapped[int] = mapped_column(
-        ForeignKey("teachers.id", ondelete="CASCADE")
+        ForeignKey("teacher.id", ondelete="CASCADE")
     )
 
     group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"))
@@ -40,10 +40,15 @@ class Schedule(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    subject: Mapped["Subject"] = relationship("Subject", back_populates="schedules")
+    subject = relationship(
+        "Subject",
+        back_populates="schedules"
+    )
     teacher: Mapped["Teacher"] = relationship("Teacher", back_populates="schedules")
     group: Mapped["Group"] = relationship("Group", back_populates="schedules")
 
-    attendances: Mapped[list["Attendance"]] = relationship(
-        "Attendance", back_populates="schedules", cascade="all, delete-orphan"
+    attendances = relationship(
+        "Attendance",
+        back_populates="schedule",
+        cascade="all, delete-orphan"
     )

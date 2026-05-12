@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import api_router
 from app.core.config import settings
 
+# ✅ Shu qatorlarni qo'shing
+
 app = FastAPI(
     title="HEMIS Backend API",
     description="O'zbekiston universitetlarining HEMIS Student tizimi uchun backend API",

@@ -43,5 +43,11 @@ class Grade(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    student: Mapped["Student"] = relationship("Student", back_populates="grades")
-    subject: Mapped["Subject"] = relationship("Subject", back_populates="grades")
+    student = relationship(
+        "Student",
+        back_populates="grades"
+    )
+    subject = relationship(
+        "Subject",
+        back_populates="grades"
+    )

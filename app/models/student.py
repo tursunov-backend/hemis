@@ -41,27 +41,38 @@ class Student(Base):
     )
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    group: Mapped["Group"] = relationship("Group", back_populates="students")
+    group = relationship(
+        "Group",
+        back_populates="students"
+    )
     attendances: Mapped[list["Attendance"]] = relationship(
-        "Attendance", back_populates="students", cascade="all, delete-orphan"
+        "Attendance", back_populates="student", cascade="all, delete-orphan"
     )
-    grades: Mapped[list["Grade"]] = relationship(
-        "Grade", back_populates="students", cascade="all, delete-orphan"
+    grades = relationship(
+        "Grade",
+        back_populates="student",
+        cascade="all, delete-orphan"
     )
-    exam_results: Mapped[list["ExamResult"]] = relationship(
-        "ExamResult", back_populates="students", cascade="all, delete-orphan"
+
+    exam_results = relationship(
+        "ExamResult",
+        back_populates="student",
+        cascade="all, delete-orphan"
     )
     contracts: Mapped[list["Contract"]] = relationship(
-        "Contract", back_populates="students", cascade="all, delete-orphan"
+        "Contract", back_populates="student", cascade="all, delete-orphan"
     )
     scholarships: Mapped[list["Scholarship"]] = relationship(
-        "Scholarship", back_populates="students", cascade="all, delete-orphan"
+        "Scholarship", back_populates="student", cascade="all, delete-orphan"
     )
     certificates: Mapped[list["Certificate"]] = relationship(
-        "Certificate", back_populates="students", cascade="all, delete-orphan"
+        "Certificate", back_populates="student", cascade="all, delete-orphan"
+    )
+    audit_logs: Mapped[list["AuditLog"]] = relationship(
+        "AuditLog", back_populates="student", cascade="all, delete-orphan"
     )
     login_history: Mapped[list["LoginHistory"]] = relationship(
-        "LoginHistory", back_populates="students", cascade="all, delete-orphan"
+        "LoginHistory", back_populates="student", cascade="all, delete-orphan"
     )
     messages: Mapped[list["Message"]] = relationship(
         "Message", foreign_keys="Message.sender_id", back_populates="sender"

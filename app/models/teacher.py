@@ -7,7 +7,7 @@ from app.db.base import Base
 
 
 class Teacher(Base):
-    __tablename__ = "teachers"
+    __tablename__ = "teacher"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
@@ -28,9 +28,9 @@ class Teacher(Base):
     )
 
     department: Mapped["Department"] = relationship(
-        "Department", back_populates="teachers"
+        "Department", back_populates="teacher"
     )
 
     schedules: Mapped[list["Schedule"]] = relationship(
-        "Schedule", back_populates="teachers", cascade="all, delete-orphan"
+        "Schedule", back_populates="teacher", cascade="all, delete-orphan"
     )

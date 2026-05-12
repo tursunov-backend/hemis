@@ -29,7 +29,7 @@ class Department(Base):
 
     groups: Mapped[list["Group"]] = relationship("Group", back_populates="department")
 
-    teachers: Mapped[list["Teacher"]] = relationship(
+    teacher: Mapped[list["Teacher"]] = relationship(
         "Teacher", back_populates="department"
     )
 

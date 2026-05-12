@@ -30,6 +30,7 @@ class Attendance(Base):
     )
 
     student: Mapped["Student"] = relationship("Student", back_populates="attendances")
-    schedule: Mapped["Schedule"] = relationship(
-        "Schedule", back_populates="attendances"
+    schedule = relationship(
+        "Schedule",
+        back_populates="attendances"
     )

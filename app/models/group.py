@@ -43,7 +43,10 @@ class Group(Base):
         "Department", back_populates="groups"
     )
 
-    students: Mapped[list["Student"]] = relationship("Student", back_populates="group")
+    students = relationship(
+        "Student",
+        back_populates="group"
+    )
 
     schedules: Mapped[list["Schedule"]] = relationship(
         "Schedule", back_populates="group"
